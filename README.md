@@ -18,6 +18,49 @@ La simulazione termina se si raggiunge un numero massimo di iterazioni (steps) S
 
 
 
+## Correttezza
+Per dimostrare la correttezza di questa soluzione sono stati realizzati dei test cases, in ognuno dei quali si da' in input al programma una matrice inizializzata in un certo modo e si controlla l'output anche variando il numero dei processori (in particolare si testerà per 2, 4 e 8 core), in modo da dimostrare che il programma si comporta in modo corretto indipendentemente dal numero dei processori. 
+Le probabilità F e P saranno settate a 0 in modo da non rendere pseudocasuale il programma.  
+### Test case 1   
+Si parte con una matrice composta da sole celle vuote 8x8 (naturalmente può essere di qualsiasi dimensione), ci aspettiamo che il programma riconosca la matrice vuota e che termini dopo una sola iterazione (sono impostate S = 50 iterazioni).  
+La scelta di usare una matrice 8x8 è strategica: la si può stampare e visualizzare comodamente, inoltre impostando per ogni test il numero di processori rispettivamente a 2, 4, 8 si può verificare che il programma funzioni sia quando ad un processore spettano più righe (2 e 4 processori), sia quando spetta una sola riga (8 processori).   
+
+**Per 2 processori:**  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/Test_mat_vuota_2_proc.png" width="400" >
+
+**Per 4 processori:**  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/Test-mat-vuota-4-proc.png" width="400" >
+
+**Per 8 processori:**  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/Test-mat-vuota-8-proc.png" width="400" >
+
+
+### Test case 2
+Si da' in input una matrice (sempre 8x8) inizializzata nel seguente modo:  
+
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/Test2-Matrice.png" width="300">  
+
+Data la composizione della matrice ci si aspetta che dopo la prima iterazione le righe 0, 2, 4, 6 da stato brucia passino a stato vuoto, mentre le righe 1, 3, 5, 7 da stato albero passino a stato brucia.  
+Alla iterazione 2 invece la matrice diventi completamente vuota e si fermi l'esecuzione.  
+
+**Per 2 processori:**  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test-case2-2-proc.png" width="650" >
+
+**Per 4 processori:**  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test-case2-2-proc.png" width="650" >
+
+**Per 8 processori:**  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test-case2-2-proc.png" width="650" >
+ 
+### Test case 3
+In questo test case di mette alla prova il funzionamento del programma, dando in input una matrice 8x8 inizializzata in modo particolare e verificando che correttamente si svolgano i passi di computazione tenendo in considerazione la logica toroidale che la matrice deve seguire -> la riga 0 ha come riga superiore la riga 7, e viceversa la riga 7 ha come riga inferiore la riga 0, mentre la colonna 0 ha come colonna sinistra la colonna 7, e viceversa la colonna 7 ha come colonna destra la colonna 0.  
+Matrice input:  
+
+
+
+
+
+
 ## Benchmarks
 ### Scalabilità forte
 dim matrice 8000 x 8000
