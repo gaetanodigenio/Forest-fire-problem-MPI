@@ -1,7 +1,23 @@
 # Forest-fire-problem-MPI
 
-# Benchmarks
-## Scalabilità forte
+
+## Introduzione
+In matematica applicata il forest-fire model è un automa cellulare su una griglia di NxN celle consistente nella simulazione di un incendio di una foresta, cui ciascuna cella può essere vuota, occupata da un albero o in fiamme.
+Lo stato di una cella può essere: vuota (E), albero (T), brucia (B).
+Secondo il modello di Drossel e Schwabl (1992), ci sono 4 regole eseguite simultaneamente:
+ 1. Una cella in fiamme diventa una cella vuota
+ 2. Un albero si incendia se almeno un vicino è in fiamme
+ 3. Un albero si infiamma con probabilità F se nessun vicino è in fiamme
+ 4. Una cella vuota si riempie con un albero con probabilità P  
+ 
+La simulazione termina se si raggiunge un numero massimo di iterazioni (steps) S, oppure se tutte le celle sono vuote.
+
+## Descrizione della soluzione
+
+
+
+## Benchmarks
+### Scalabilità forte
 dim matrice 8000 x 8000
 
 | Numero processori | Tempo esecuzione(s) | Speedup | Efficienza |
@@ -32,7 +48,7 @@ dim matrice 8000 x 8000
 |24|  11.116  | 5.954 | 0.25 |
 
 
-## Scalabilità debole
+### Scalabilità debole
 Ad ogni processore è assegnata una matrice di 150 * 6000 = 900000 elementi.
 
 | Numero di processori | Tempo di esecuzione (s) |
