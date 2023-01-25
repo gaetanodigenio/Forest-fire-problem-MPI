@@ -1,7 +1,7 @@
 # Forest-fire-problem-MPI
 
 # Benchmarks
-Scalabilità forte
+## Scalabilità forte
 dim matrice 8000 x 8000
 
 | Numero processori | Tempo esecuzione(s) | Speedup | Efficienza |
@@ -32,8 +32,7 @@ dim matrice 8000 x 8000
 |24|  11.116  | 5.954 | 0.25 |
 
 
-Scalabilità debole
-
+## Scalabilità debole
 Ad ogni processore è assegnata una matrice di 150 * 6000 = 900000 elementi.
 
 | Numero di processori | Tempo di esecuzione (s) |
