@@ -10,7 +10,9 @@ Secondo il modello di Drossel e Schwabl (1992), ci sono 4 regole eseguite simult
  3. Un albero si infiamma con probabilità F se nessun vicino è in fiamme
  4. Una cella vuota si riempie con un albero con probabilità P  
  
-La simulazione termina se si raggiunge un numero massimo di iterazioni (steps) S, oppure se tutte le celle sono vuote.
+La simulazione termina se si raggiunge un numero massimo di iterazioni (steps) S, oppure se tutte le celle sono vuote.  
+
+![](https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/Forest_fire_model.gif)
 
 ## Descrizione della soluzione
 
