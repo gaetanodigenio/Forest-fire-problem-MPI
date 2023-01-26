@@ -254,7 +254,7 @@ Alla iterazione 2 invece la matrice diventi completamente vuota e si fermi l'ese
  
 ### Test case 3
 In questo test case si da' in input una matrice 8x8 inizializzata in modo particolare e si verifica che correttamente si svolgano i passi di computazione tenendo in considerazione la logica toroidale che la matrice deve seguire -> la riga 0 ha come riga superiore la riga 7, e viceversa la riga 7 ha come riga inferiore la riga 0, mentre la colonna 0 ha come colonna sinistra la colonna 7, e viceversa la colonna 7 ha come colonna destra la colonna 0.  
-Matrice input:  
+Matrice input:    
 <img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3_mat.png" width="250" >
 
 La scelta della matrice input, ancora una volta, è strategica.  
@@ -262,13 +262,16 @@ In particolare ci si aspetta che gli alberi posti sulla prima riga e sull'ultima
 Allo stesso modo l'albero posto sulla 3 e 5 riga brucia poiché il vicino sulla colonna opposta sta bruciando.  
 Dopo 2 iterazioni ci si aspetta che tutta la matrice sia vuota:  
 
-** Per 2 processori: **
+**Per 2 processori:**  
+
 <img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="350" >
 
-** Per 4 processori: **
+**Per 4 processori:**  
+
 <img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="350" >
 
-** Per 8 processori: **
+**Per 8 processori:**  
+
 <img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="350" >
 
 
@@ -279,7 +282,7 @@ Con questi 3 test case si dimostra la correttezza del programma indipendentement
 
 ## Benchmarks
 ### Scalabilità forte
-Si sceglie come dimensione della matrice 8000 x 8000, con un numero di iterazioni S pari a 100.
+Si sceglie come dimensione della matrice 8000 x 8000, con un numero di iterazioni S pari a 100.  
 La scalabilità forte prevede una dimensione dell'input fissata ed il numero di processori che varia.  
 Tutti i test sono stati svolti su un cluster di 6 macchine e2-standard-4, ognuno con 4 vCPU e 16gb di RAM, per un totale di 24vCPU.  
 Lo speedup è assoluto, calcolato come il rapporto del tempo di esecuzione del programma sequenziale forrestSeq.c ed il tempo di esecuzione sul programma parallelo forrestParallelo.c .  
