@@ -227,20 +227,23 @@ Di seguito il codice:
 - Ci sono 3 file .c, forrestParallelo.c è la versione concorrente del programma, il file forrestSeq.c quella sequenziale e correttezzaParallelo.c è per fare i tests sulla correttezza.
 - Per compilare la versione sequenziale eseguire il comando ``` mpicc -o sequenziale forrestSeq.c ```, per la versione parallela ```mpicc -o parallelo forrestParallelo.c ```, per fare tests sulla correttezza ``` mpicc -o tests correttezzaParallelo.c ``` .
 - Una volta compilati si esegue la versione sequenziale con comando ``` mpirun -np 1 sequenziale M N ```, dove al posto di M ed N si inseriscono rispettivamente  numero di righe e numero di colonne per la matrice.
-- Si esegue la versione parallela con comando ``` mpirun --allow-run-as-root -np NP parallelo M N ``` , dove al posto di NP si inserisce il numero di processori ed al posto di M ed N numero di righe e di colonne.
+- Si esegue la versione parallela con comando ``` mpirun -np NP parallelo M N ``` , dove al posto di NP si inserisce il numero di processori ed al posto di M ed N numero di righe e di colonne.
 - Si esegue la versione di tests con comando ``` mpirun -np NP tests M N ```.
 
 ### Esecuzione su cluster/cloud
 - Creare n macchine virtuali e farne il set up seguendo la guida ``` https://github.com/spagnuolocarmine/ubuntu-openmpi-openmp ```  
 - Fare il git clone della repository  
 - Compilare su ogni macchina ``` mpicc -o parallelo forrestParallelo.c ``` per la versione parallela
-- Si esegue sulla macchina master ``` mpirun --allow-run-as-root -np NP --hostfile hostfile parallelo M N ```, dove hostfile è il nome dell'hostfile creato
+- Si esegue sulla macchina master ``` mpirun -np NP --hostfile hostfile parallelo M N ```, dove hostfile è il nome dell'hostfile creato
 - Per la versione sequenziale si compila sulla macchina master ``` mpicc -o sequenziale forrestSeq.c ``` 
-- Eseguire su macchina master ``` mpirun --allow-run-as-root -np NP sequenziale M N ```  
+- Eseguire su macchina master ``` mpirun -np NP sequenziale M N ```  
 - Per verificare la correttezza si compila con ``` mpicc -o tests correttezzaParallelo.c ```
-- Eseguire su macchina master ``` mpirun --allow-run-as-root -np NP --hostfile hostfile tests M N ```
+- Eseguire su macchina master ``` mpirun -np NP --hostfile hostfile tests M N ```
 
-
+### Esecuzione in Docker
+- Installare Docker  
+- Fare il pull dell'immagine al link [immagine](https://hub.docker.com/r/spagnuolocarmine/docker-mpi)
+- Seguire le istruzioni al link [istruzioni](https://tech.io/playgrounds/47058/have-fun-with-mpi-in-c/docker-mpi-environment)
 
 
 ## Correttezza
