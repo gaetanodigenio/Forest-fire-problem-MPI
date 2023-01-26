@@ -361,7 +361,7 @@ void check_bordi(char* submatrix, char* submatrix2, char* rigaUp, char* rigaDown
 
     //cella inferiore
     if(i == (nRighe - 1)){ //se considero riga ultima di SUBMAT, la mia riga inferiore è A_down
-        if(rigaDown[i * n + j] == 'B'){ 
+        if(rigaDown[0 * n + j] == 'B'){ 
             submatrix2[i * n + j] = 'B';
         }
     }else if(i == 0){ //se considero riga 0 di SUBMAT, la sua riga inferiore è la riga i+1 di SUBMAT
