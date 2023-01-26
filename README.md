@@ -22,8 +22,14 @@ Inoltre per mantenere le informazioni di scambio ai bordi si useranno 2 array au
 Si crea infine un meccanismo per capire quando la matrice è vuota e quindi interrompere l'esecuzione e si utilizzano 2 matrici alternandole ad ogni fine di passo di esecuzione per risparmiare spazio in memoria.  
 Nello schema seguente si mostra la suddivisione della matrice e gli array A_up e A_down per ogni processo:  
 
-<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/descrizione.jpg" width="700" >
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/descrizione.jpg" width="680" >
 
+### Vicini
+I vicini di un nodo generico sono raffigurati di seguito:  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/vicini-generics.png" width="200" >
+
+I vicini di un nodo ai bordi (il nodo azzurro) sono raffigurati di seguito:  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/vicini%20bordi.png" width="300" >
 
 
 
@@ -258,7 +264,11 @@ Matrice input:
 
 ## Benchmarks
 ### Scalabilità forte
-dim matrice 8000 x 8000
+Si sceglie come dimensione della matrice 8000 x 8000, con un numero di iterazioni S pari a 100.
+La scalabilità forte prevede una dimensione dell'input fissata ed il numero di processori che varia.  
+Tutti i test sono stati svolti su un cluster di 6 macchine e2-standard-4, ognuno con 4 vCPU e 16gb di RAM, per un totale di 24vCPU.  
+Lo speedup è assoluto, calcolato come il rapporto del tempo di esecuzione del programma sequenziale forrestSeq.c ed il tempo di esecuzione sul programma parallelo forrestParallelo.c .  
+I test sono stati ripetuti più volte per avere un risultato più attendibile, di seguito sono mostrati i risultati:  
 
 | Numero processori | Tempo esecuzione(s) | Speedup | Efficienza |
 | ----------------- | ----------------    | ------- | ---------- |
@@ -287,9 +297,17 @@ dim matrice 8000 x 8000
 |23|  12.024  | 5.505 | 0.239 |
 |24|  11.116  | 5.954 | 0.25 |
 
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/strong_scal.png" width="450" >
+
+
+Si nota come il tempo di esecuzione diminuisce molto rapidamente ma tende, ad un certo punto, a rimanere piuttosto piatto non riuscendo a scendere sotto gli 11 secondi di tempo di esecuzione anche utilizzando 24 vCPU.  
+L'overhead di comunicazione incide in maniera significativa, ed inoltre anche l'efficienza tende a scendere e ad appiattirsi, indice che all'aumentare dei processori il parallelismo si sfrutta sempre di meno.  
+
 
 ### Scalabilità debole
-Ad ogni processore è assegnata una matrice di 150 * 6000 = 900000 elementi.
+Ad ogni processore è assegnata una matrice di 150 * 6000 = 900000 elementi.  
+La scalabilità debole prevede una dimensione dell'input costante per singolo processore, per cui per ogni test si da' in input (np * 150) * 6000 elementi, dove np è il numero dei processori.  
+Di seguito i risultati:  
 
 | Numero di processori | Tempo di esecuzione (s) |
 | -------------------- | ----------------------- |
@@ -317,6 +335,14 @@ Ad ogni processore è assegnata una matrice di 150 * 6000 = 900000 elementi.
 |22 | 9.845 |
 |23 | 10.244 |
 |24 | 10.607 |
+
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/weak_scal.png" width="450" >
+
+Nonostante le performance dell'algoritmo migliorino quando si utilizza la parallelizzazione, i risultati non sono eccelsi come ci si aspetta.  
+L'overhead di comunicazione che ad ogni iterazione si ha quando si scambiano le righe o quando si controlla che la matrice sia vuota porta ad un miglioramento dello speedup non altissimo (speedup sotto al 6 utilizzando 24 processori).  
+Allo stesso modo nella weak scalability si nota un incremento del tempo di esecuzione piuttosto importante, è da tenere in considerazione però che la dimensione della matrice data in input era piuttosto grande in tutti questi benchmark.  
+
+
 
 
 
