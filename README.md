@@ -2,8 +2,8 @@
 
 
 ## Introduzione
-In matematica applicata il forest-fire model è un automa cellulare su una griglia di NxN celle consistente nella simulazione di un incendio di una foresta, cui ciascuna cella può essere vuota, occupata da un albero o in fiamme.
-Lo stato di una cella può essere: vuota (E), albero (T), brucia (B).
+In matematica applicata il forest-fire model è un automa cellulare su una griglia di NxN celle consistente nella simulazione di un incendio di una foresta.
+Lo stato di ogni cella della matrice può essere: vuota (E), albero (T), brucia (B).
 Secondo il modello di Drossel e Schwabl (1992), ci sono 4 regole eseguite simultaneamente:
  1. Una cella in fiamme diventa una cella vuota
  2. Un albero si incendia se almeno un vicino è in fiamme
@@ -14,7 +14,202 @@ La simulazione termina se si raggiunge un numero massimo di iterazioni (steps) S
 
 ![](https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/Forest_fire_model.gif)
 
-## Descrizione della soluzione
+## Descrizione breve della soluzione
+Si ha un processo master che crea, inizializza e divide matrice equamente tra gli np processori.  
+Ogni processore si ritroverà con un numero di righe pari a m/np (eventualmente si assegna una riga in più), dove m è il numero di righe ed np il numero di processori.  
+La matrice segue una logica toroidale, sia verticalmente (la prima riga e l'ultima riga sono considerate vicine), sia orizzontalmente (la prima colonna e l'ultima colonna sono considerate vicine).   
+Inoltre per mantenere le informazioni di scambio ai bordi si useranno 2 array ausiliari, in cui uno mantiene l'ultima riga del processo precedente, l'altro mantiene la prima riga del processo successivo.  
+Si crea infine un meccanismo per capire quando la matrice è vuota e quindi interrompere l'esecuzione e si utilizzano 2 matrici alternandole ad ogni fine di passo di esecuzione per risparmiare spazio in memoria.  
+Nello schema seguente si mostra la suddivisione della matrice e gli array A_up e A_down per ogni processo:  
+
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/descrizione.jpg" width="700" >
+
+
+
+
+## Dettagli implementativi
+### Divisione della matrice
+Inizialmente si definiscono le probabilità P, F ed il numero di iterazioni S:
+``` 
+#define S 50  //numero di iterazioni totali algoritmo
+#define P 10  //albero cresce in cella vuota con probabilità P
+#define F 10 //albero brucia con probabilità F se nessun vicino sta bruciando 
+```
+
+Si calcola quante righe dare ad ogni processo (sendcounts e offset utili per la funzione MPI_Scatterv).
+Ogni processore riceve m/np righe (+1 eventualmente), dove m è il numero di righe, np il numero di processori:
+```
+//divido matrice per numero di processi
+    r = m % np; //resto divisione righe per numero processi
+    sendcounts = (int*)malloc(np * sizeof(int));
+    offset = (int*)malloc(np * sizeof(int));
+
+    //inizializzo sendcounts e offset per la scatterv
+    for(int i = 0; i<np; i++){
+        sendcounts[i] = m/np;
+        if(r > 0){
+            sendcounts[i]++;
+            r--;
+        }
+        sendcounts[i] *= n;
+
+        offset[i] = sum;
+        sum += sendcounts[i];
+    }
+```
+Ogni processore riceverà quindi m/np righe, ed in più allocherà 2 array: A_up manterrà i valori dell'ultima riga del processo precedente, A_down manterrà i valori della prima riga del processo successivo.
+Si fa notare che per progettazione il primo processo mantiene in A_up l'ultima riga della matrice e in A_down la prima riga della sottomatrice del processo successivo.  
+L'ultimo processo invece manterrà in A_up 
+
+
+
+### Comunicazione
+Si è scelto di utilizzare send e receive non bloccanti, in quanto la comunicazione è necessaria soltanto ai bordi della matrice (prima riga ed ultima riga) per ogni processo.  
+Per questo motivo, se il numero di righe della sottomatrice per ogni processo è almeno 3, io posso da subito lavorare sulle righe centrali (da riga 1 a riga nRighe - 2, cioè dalla seconda alla penultima), solo quando saranno terminate le send e le receive lavorerò ai bordi.  
+In questo modo si migliora l'efficienza del programma in quanto non aspetterà che si concludino prima tutte le send e receive per iniziare a lavorare ma si anticiperà del lavoro nel frattempo agendo sulle righe centrali.  
+Di seguito il codice:  
+```
+for(int i = 0; i<S; i++){
+        //se ho solo una riga invio quella a p-1%np e p+1%np
+        if(nRighe == 1){
+            MPI_Isend(SUBMAT, n, MPI_CHAR, mod(me - 1, np), 0, MPI_COMM_WORLD, &request[0]);
+            MPI_Irecv(A_down, n, MPI_CHAR, mod(me + 1, np), 0, MPI_COMM_WORLD, &request[0]);
+            MPI_Isend(SUBMAT, n, MPI_CHAR, mod(me + 1, np), 0, MPI_COMM_WORLD, &request[1]);   
+            MPI_Irecv(A_up, n, MPI_CHAR, mod(me - 1, np), 0, MPI_COMM_WORLD, &request[1]);
+        }else{ //altrimenti se ho multiple righe
+            //invia riga superiore matrice a p-1%np
+            MPI_Isend(SUBMAT, n, MPI_CHAR, mod(me - 1, np), 0, MPI_COMM_WORLD, &request[0]);
+            //ricevi riga inferiore da processo p+1%np memorizzandola in A_down
+            MPI_Irecv(A_down, n, MPI_CHAR, mod(me + 1, np), 0, MPI_COMM_WORLD, &request[0]);
+            //invia riga inferiore matrice a p+1%np
+            MPI_Isend(&SUBMAT[sendcounts[me] - n], n, MPI_CHAR, mod(me + 1, np), 0, MPI_COMM_WORLD, &request[1]);
+            //ricevi riga superiore da processo p-1%np memorizzandola in A_up
+            MPI_Irecv(A_up, n, MPI_CHAR, mod(me - 1, np), 0, MPI_COMM_WORLD, &request[1]);
+        } 
+
+        //variabili usate per il meccanismo di riconoscimento matrice vuota
+        vuota = 0;
+        emptCtr = 0;
+
+        //nel frattempo lavoro su righe interne, ammesso che la SUBMAT abbia almeno 3 righe, altrimenti siamo ai bordi
+        if(nRighe >= 3){
+            for(int i = 1; i <= nRighe-2; i++){
+                for(int j = 0; j<n; j++){
+                    if(SUBMAT[i * n + j] == 'B'){
+                        SUBMAT2[i * n + j] = 'E';
+                    }else if(SUBMAT[i * n + j] == 'E'){
+                        if((1 + rand() % 100) <= P){
+                            SUBMAT2[(i*n) + j] = 'T';
+                        }else{
+                            SUBMAT2[(i*n) + j] = 'E';
+                        }
+                    }else if(SUBMAT[i * n + j] == 'T'){
+                        check_vicini(SUBMAT, SUBMAT2, i, j, nRighe, n);
+                    }
+
+                    if(SUBMAT2[i * n + j] == 'E'){
+                        vuota++;
+                    }
+                }
+            }
+        }
+        
+
+        //Quando le send e le receive sono completate lavoro sui bordi
+        MPI_Waitall(2, request, MPI_STATUSES_IGNORE);
+
+        if(nRighe >= 1){
+            //lavoro su bordo prima riga usando array ricevuto A_up
+            for(int j = 0; j<n; j++){
+                if(SUBMAT[0 * n + j] == 'B'){
+                    SUBMAT2[0 * n + j] = 'E';
+                }else if(SUBMAT[0 * n + j] == 'E'){
+                    if((1 + rand() % 100) <= P){
+                        SUBMAT2[0 * n + j] = 'T';
+                    }else{
+                        SUBMAT2[0 * n + j] = 'E';
+                    }
+                }else if(SUBMAT[0 * n + j] == 'T'){
+                    check_bordi(SUBMAT, SUBMAT2, A_up, SUBMAT, 0, j, nRighe, n);
+                }
+
+                if(SUBMAT2[0 * n + j] == 'E'){
+                    vuota++;
+                }
+            }
+
+            //lavoro su bordo ultima riga usando array ricevuto A_down
+            for(int j = 0; j<n; j++){
+                if(SUBMAT[(nRighe - 1) * n + j] == 'B'){
+                    SUBMAT2[(nRighe - 1) * n + j] = 'E';
+                }else if(SUBMAT[(nRighe - 1) * n + j] == 'E'){
+                    if((1 + rand() % 100) <= P){
+                        SUBMAT2[(nRighe - 1) * n + j] = 'T';
+                    }else{
+                        SUBMAT2[(nRighe - 1) * n + j] = 'E';
+                    }
+                }else if(SUBMAT[(nRighe - 1) * n + j] == 'T'){
+                    check_bordi(SUBMAT, SUBMAT2, SUBMAT, A_down, (nRighe-1), j, nRighe, n);
+                }
+
+                if(SUBMAT2[(nRighe - 1) * n + j] == 'E'){
+                    vuota++;
+                }
+            }
+            
+        }
+```
+Infine si switcheranno le due matrici usate per portare avanti la computazione e si implementa il meccanismo per riconoscere se la matrice è vuota nel seguente modo: ogni processore utilizza una variabile 'vuota' che si incrementa ogni volta che si riconosce una cella vuota.  
+Se dopo aver terminato una iterazione si nota che il valore in 'vuota' è uguale al numero totale di elementi nella sottomatrice per ogni processo, allora significa che quella sottomatrice è vuota -> si setta una variabile 'emptCtr a 1'.  
+Si fa una MPI_Reduce delle variabili 'emptCtr' da tutti i processi al processo master che controlla che la somma di queste variabili sia uguale al numero di processori.  
+In questo modo vuol dire che l'intera matrice è vuota, per cui il processo 0 avviserà tutti inviando in broadcast una variabile 'ok' settata a 1, e si esce dalle iterazioni.  
+Di seguito il codice:  
+```
+        TEMP = SUBMAT;
+        SUBMAT = SUBMAT2;
+        SUBMAT2 = TEMP;
+
+        if(nRighe == 1){
+            vuota = vuota / 2;
+        }
+        //se un processo ha sottomatrice vuota, setta emptCtr a 1 altrimenti a 0
+        if(vuota == sendcounts[me]){
+            emptCtr = 1;
+        }
+
+        //reduce degli emptCtr al processo master 0
+        MPI_Reduce(&emptCtr, &emptMaster, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+        if(me == 0){
+            //se tutti i processori hanno settato emptMaster a 1
+            if(emptMaster == np){
+                ok = 1;
+                printf("Foresta vuota! Iterazioni totali: %d\n", i+1);
+            }
+        }
+        //valore ok
+        MPI_Bcast(&ok, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        if(ok == 1){
+            break;
+        }
+```
+
+
+## Istruzioni per l'esecuzione
+### Esecuzione locale
+- Fare il git clone della repository.
+- Ci sono 2 file .c, forrestParallelo.c è la versione concorrente del programma, il file forrestSeq.c quella sequenziale.
+- Per compilare la versione sequenziale eseguire il comando ``` mpicc -o sequenziale forrestSeq.c ```, per la versione parallela ```mpicc -o parallelo forrestParallelo.c ```.
+- Una volta compilati si esegue con comando ``` mpirun -np 1 sequenziale M N ```, dove al posto di M ed N si inseriscono rispettivamente  numero di righe e numero di colonne per la matrice.
+- Si esegue con comando ``` mpirun --allow-run-as-root -np NP parallelo M N ``` , dove al posto di NP si inserisce il numero di processori ed al posto di M ed N numero di righe e di colonne.
+
+### Esecuzione su cluster/cloud
+- Creare n macchine virtuali e farne il set up seguendo la guida ``` https://github.com/spagnuolocarmine/ubuntu-openmpi-openmp ```  
+- Fare il git clone della repository  
+- Compilare su ogni macchina ``` mpicc -o parallelo forrestParallelo.c ``` per la versione parallela
+- Si esegue sulla macchina master ``` mpirun --allow-run-as-root -np NP --hostfile hostfile parallelo M N ```, dove hostfile è il nome dell'hostfile creato
+- Per la versione sequenziale si compila sulla macchina master ``` mpicc -o sequenziale forrestSeq.c ``` 
+- Eseguire su macchina master ``` mpirun --allow-run-as-root -np NP sequenziale M N ```  
+
 
 
 
@@ -53,7 +248,7 @@ Alla iterazione 2 invece la matrice diventi completamente vuota e si fermi l'ese
 <img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test-case2-2-proc.png" width="650" >
  
 ### Test case 3
-In questo test case di mette alla prova il funzionamento del programma, dando in input una matrice 8x8 inizializzata in modo particolare e verificando che correttamente si svolgano i passi di computazione tenendo in considerazione la logica toroidale che la matrice deve seguire -> la riga 0 ha come riga superiore la riga 7, e viceversa la riga 7 ha come riga inferiore la riga 0, mentre la colonna 0 ha come colonna sinistra la colonna 7, e viceversa la colonna 7 ha come colonna destra la colonna 0.  
+In questo test case si da' in input una matrice 8x8 inizializzata in modo particolare e si verifica che correttamente si svolgano i passi di computazione tenendo in considerazione la logica toroidale che la matrice deve seguire -> la riga 0 ha come riga superiore la riga 7, e viceversa la riga 7 ha come riga inferiore la riga 0, mentre la colonna 0 ha come colonna sinistra la colonna 7, e viceversa la colonna 7 ha come colonna destra la colonna 0.  
 Matrice input:  
 
 
