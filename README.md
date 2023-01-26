@@ -62,9 +62,23 @@ Ogni processore riceve m/np righe (+1 eventualmente), dove m è il numero di rig
         sum += sendcounts[i];
     }
 ```
-Ogni processore riceverà quindi m/np righe, ed in più allocherà 2 array: A_up manterrà i valori dell'ultima riga del processo precedente, A_down manterrà i valori della prima riga del processo successivo.
-Si fa notare che per progettazione il primo processo mantiene in A_up l'ultima riga della matrice e in A_down la prima riga della sottomatrice del processo successivo.  
-L'ultimo processo invece manterrà in A_up 
+Ogni processore riceverà quindi m/np righe, ed in più allocherà 2 array: A_up manterrà i valori dell'ultima riga del processo precedente, A_down manterrà i valori della prima riga del processo successivo.  
+```
+    //dichiara SUBMAT e SUBMAT2 locale
+    char *SUBMAT, *SUBMAT2, *TEMP;
+    int nRighe = sendcounts[me]/n;
+    //alloco SUBMAT e SUBMAT2 locale
+    SUBMAT = (char*)malloc(sendcounts[me] * sizeof(char));
+    SUBMAT2 = (char*)malloc(sendcounts[me] * sizeof(char));
+    TEMP = (char*)malloc(sendcounts[me] * sizeof(char));
+    //dichiara e alloca 2 array corrispondenti alle due righe da ricevere(A_up e A_down)
+    char *A_up, *A_down;
+    A_up = (char*)malloc(n * sizeof(char));
+    A_down = (char*)malloc(n * sizeof(char));
+
+    //ricevi sottomatrice locale
+    MPI_Scatterv(MAT, sendcounts, offset, MPI_CHAR, SUBMAT, sendcounts[me], MPI_CHAR, 0, MPI_COMM_WORLD);
+```
 
 
 
