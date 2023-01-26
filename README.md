@@ -255,8 +255,24 @@ Alla iterazione 2 invece la matrice diventi completamente vuota e si fermi l'ese
 ### Test case 3
 In questo test case si da' in input una matrice 8x8 inizializzata in modo particolare e si verifica che correttamente si svolgano i passi di computazione tenendo in considerazione la logica toroidale che la matrice deve seguire -> la riga 0 ha come riga superiore la riga 7, e viceversa la riga 7 ha come riga inferiore la riga 0, mentre la colonna 0 ha come colonna sinistra la colonna 7, e viceversa la colonna 7 ha come colonna destra la colonna 0.  
 Matrice input:  
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3_mat.png" width="250" >
+
+La scelta della matrice input, ancora una volta, è strategica.  
+In particolare ci si aspetta che gli alberi posti sulla prima riga e sull'ultima riga brucino poiché ragionando in maniera toroidale i vicini stanno bruciando.  
+Allo stesso modo l'albero posto sulla 3 e 5 riga brucia poiché il vicino sulla colonna opposta sta bruciando.  
+Dopo 2 iterazioni ci si aspetta che tutta la matrice sia vuota:  
+
+** Per 2 processori: **
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="350" >
+
+** Per 4 processori: **
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="350" >
+
+** Per 8 processori: **
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="350" >
 
 
+Con questi 3 test case si dimostra la correttezza del programma indipendentemente dal numero di processori e che la logica toroidale funzioni allo stesso modo.  
 
 
 
