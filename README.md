@@ -291,15 +291,15 @@ Dopo 2 iterazioni ci si aspetta che tutta la matrice sia vuota:
 
 **Per 2 processori:**  
 
-<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="450" >
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="550" >
 
 **Per 4 processori:**  
 
-<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="450" >
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="550" >
 
 **Per 8 processori:**  
 
-<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="450" >
+<img src="https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/img/test_case_3.jpg" width="550" >
 
 
 Con questi 3 test case si dimostra la correttezza del programma indipendentemente dal numero di processori e che la logica toroidale funzioni allo stesso modo.  
