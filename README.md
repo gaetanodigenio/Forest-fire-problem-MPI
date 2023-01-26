@@ -1,5 +1,5 @@
 # Forest-fire-problem-MPI
-
+Progetto realizzato per il corso di Programmazione Concorrente e Parallela su Cloud, laurea magistrale in Informatica (curriculum Cloud Computing) presso Università degli Studi di Salerno.  
 
 ## Introduzione
 In matematica applicata il forest-fire model è un automa cellulare su una griglia di NxN celle consistente nella simulazione di un incendio di una foresta.
