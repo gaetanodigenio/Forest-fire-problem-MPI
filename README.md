@@ -203,9 +203,10 @@ Di seguito il codice:
 ### Esecuzione locale
 - Fare il git clone della repository.
 - Ci sono 2 file .c, forrestParallelo.c è la versione concorrente del programma, il file forrestSeq.c quella sequenziale.
-- Per compilare la versione sequenziale eseguire il comando ``` mpicc -o sequenziale forrestSeq.c ```, per la versione parallela ```mpicc -o parallelo forrestParallelo.c ```.
-- Una volta compilati si esegue con comando ``` mpirun -np 1 sequenziale M N ```, dove al posto di M ed N si inseriscono rispettivamente  numero di righe e numero di colonne per la matrice.
-- Si esegue con comando ``` mpirun --allow-run-as-root -np NP parallelo M N ``` , dove al posto di NP si inserisce il numero di processori ed al posto di M ed N numero di righe e di colonne.
+- Per compilare la versione sequenziale eseguire il comando ``` mpicc -o sequenziale forrestSeq.c ```, per la versione parallela ```mpicc -o parallelo forrestParallelo.c ```, per fare tests sulla correttezza ``` mpicc -o tests correttezzaParallelo.c ``` .
+- Una volta compilati si esegue la versione sequenziale con comando ``` mpirun -np 1 sequenziale M N ```, dove al posto di M ed N si inseriscono rispettivamente  numero di righe e numero di colonne per la matrice.
+- Si esegue la versione parallela con comando ``` mpirun --allow-run-as-root -np NP parallelo M N ``` , dove al posto di NP si inserisce il numero di processori ed al posto di M ed N numero di righe e di colonne.
+- Si esegue la versione di tests con comando ``` mpirun -np NP tests M N ```.
 
 ### Esecuzione su cluster/cloud
 - Creare n macchine virtuali e farne il set up seguendo la guida ``` https://github.com/spagnuolocarmine/ubuntu-openmpi-openmp ```  
@@ -214,6 +215,7 @@ Di seguito il codice:
 - Si esegue sulla macchina master ``` mpirun --allow-run-as-root -np NP --hostfile hostfile parallelo M N ```, dove hostfile è il nome dell'hostfile creato
 - Per la versione sequenziale si compila sulla macchina master ``` mpicc -o sequenziale forrestSeq.c ``` 
 - Eseguire su macchina master ``` mpirun --allow-run-as-root -np NP sequenziale M N ```  
+- Eseguire su macchina master ``` mpirun --allow-run-as-root -np NP tests M N ```
 
 
 
@@ -221,6 +223,8 @@ Di seguito il codice:
 ## Correttezza
 Per dimostrare la correttezza di questa soluzione sono stati realizzati dei test cases, in ognuno dei quali si da' in input al programma una matrice inizializzata in un certo modo e si controlla l'output anche variando il numero dei processori (in particolare si testerà per 2, 4 e 8 core), in modo da dimostrare che il programma si comporta in modo corretto indipendentemente dal numero dei processori. 
 Le probabilità F e P saranno settate a 0 in modo da non rendere pseudocasuale il programma.  
+Per poter effettuare dei tests in proprio è presente il file correttezzaParallelo.c che stampa ad ogni iterazione la matrice ammesso che il numero di righe e colonne non sia superiore a 10.  
+
 ### Test case 1   
 Si parte con una matrice composta da sole celle vuote 8x8 (naturalmente può essere di qualsiasi dimensione), ci aspettiamo che il programma riconosca la matrice vuota e che termini dopo una sola iterazione (sono impostate S = 50 iterazioni).  
 La scelta di usare una matrice 8x8 è strategica: la si può stampare e visualizzare comodamente, inoltre impostando per ogni test il numero di processori rispettivamente a 2, 4, 8 si può verificare che il programma funzioni sia quando ad un processore spettano più righe (2 e 4 processori), sia quando spetta una sola riga (8 processori).   
