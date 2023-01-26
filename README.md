@@ -93,7 +93,7 @@ Ogni processore riceverà quindi m/np righe, ed in più allocherà 2 array: A_up
 ### Comunicazione
 Si è scelto di utilizzare send e receive non bloccanti, in quanto la comunicazione è necessaria soltanto ai bordi della matrice (prima riga ed ultima riga) per ogni processo.  
 Per questo motivo, se il numero di righe della sottomatrice per ogni processo è almeno 3, io posso da subito lavorare sulle righe centrali (da riga 1 a riga nRighe - 2, cioè dalla seconda alla penultima), solo quando saranno terminate le send e le receive lavorerò ai bordi.  
-In questo modo si migliora l'efficienza del programma in quanto non aspetterà che si concludino prima tutte le send e receive per iniziare a lavorare ma si anticiperà del lavoro nel frattempo agendo sulle righe centrali.  
+In questo modo si migliorano le prestazioni del programma in quanto non aspetterà che si concludano prima tutte le send e receive per iniziare a lavorare ma si anticiperà del lavoro nel frattempo agendo sulle righe centrali.  
 Di seguito il codice:  
 ```
 for(int i = 0; i<S; i++){
