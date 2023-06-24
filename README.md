@@ -1,12 +1,12 @@
 # Forest-fire-problem-MPI 
 
 ## Indice
-- [Introduzione](https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/README.md#introduzione)  
-- [Descrizione breve della soluzione](https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/README.md#descrizione-breve-della-soluzione)
-- [Dettagli implementativi](https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/README.md#dettagli-implementativi)
-- [Istruzioni per l'esecuzione](https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/README.md#istruzioni-per-lesecuzione)
-- [Correttezza](https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/README.md#correttezza)
-- [Benchmarks e conclusioni](https://github.com/gaetanodigenio/Forest-fire-problem-MPI/blob/main/README.md#benchmarks)
+- [Introduzione](#introduzione)  
+- [Descrizione breve della soluzione](#descrizione-breve-della-soluzione)
+- [Dettagli implementativi](#dettagli-implementativi)
+- [Istruzioni per l'esecuzione](#istruzioni-per-lesecuzione)
+- [Correttezza](#correttezza)
+- [Benchmarks e conclusioni](#benchmarks)
 
 ## Introduzione
 In matematica applicata il forest-fire model è un automa cellulare su una griglia di NxN celle consistente nella simulazione di un incendio di una foresta.
